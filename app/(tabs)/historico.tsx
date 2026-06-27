@@ -1,4 +1,5 @@
-import { useEffect, useState } from 'react';
+import { useFocusEffect } from '@react-navigation/native';
+import { useCallback, useState } from 'react';
 import { FlatList, StyleSheet, Text, View } from 'react-native';
 
 import { collection, getDocs } from 'firebase/firestore';
@@ -8,30 +9,31 @@ export default function Historico() {
 
     const [lancamentos, setLancamentos] = useState<any[]>([]);
 
-    useEffect(() => {
-
-        buscarLancamentos();
-
-    }, []);
-
     const buscarLancamentos = async () => {
+        try {
+            const dados = await getDocs(collection(db, 'lancamentos'));
 
-        const dados = await getDocs(collection(db, 'lancamentos'));
+            const lista: any[] = [];
 
-        const lista: any[] = [];
-
-        dados.forEach((doc) => {
-
-            lista.push({
-                id: doc.id,
-                ...doc.data(),
+            dados.forEach((doc) => {
+                lista.push({
+                    id: doc.id,
+                    ...doc.data(),
+                });
             });
 
-        });
+            setLancamentos(lista);
 
-        setLancamentos(lista);
-
+        } catch (error) {
+            console.log('Erro ao buscar lançamentos:', error);
+        }
     };
+
+    useFocusEffect(
+        useCallback(() => {
+            buscarLancamentos();
+        }, [])
+    );
 
     return (
         <View style={styles.container}>
@@ -44,7 +46,6 @@ export default function Historico() {
                 data={lancamentos}
                 keyExtractor={(item) => item.id}
                 renderItem={({ item }) => (
-
                     <View style={styles.card}>
 
                         <Text style={styles.descricao}>
@@ -52,7 +53,7 @@ export default function Historico() {
                         </Text>
 
                         <Text>
-                            {item.tipo}
+                            Tipo: {item.tipo}
                         </Text>
 
                         <Text>
@@ -60,7 +61,6 @@ export default function Historico() {
                         </Text>
 
                     </View>
-
                 )}
             />
 
@@ -84,7 +84,7 @@ const styles = StyleSheet.create({
     },
 
     card: {
-        backgroundColor: '#E5E5E5',
+        backgroundColor: 'white',
         padding: 15,
         borderRadius: 10,
         marginBottom: 10,

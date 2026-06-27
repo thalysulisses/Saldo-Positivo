@@ -1,9 +1,12 @@
+import { useNavigation } from '@react-navigation/native';
 import { addDoc, collection } from 'firebase/firestore';
 import { useState } from 'react';
 import { Button, StyleSheet, Text, TextInput, View } from 'react-native';
 import { db } from '../../firebase';
 
 export default function Adicionar() {
+
+    const navigation = useNavigation();
 
     const [descricao, setDescricao] = useState('');
     const [valor, setValor] = useState('');
@@ -25,6 +28,10 @@ export default function Adicionar() {
         });
 
         alert('Lançamento salvo com sucesso!');
+
+        setTimeout(() => {
+            navigation.goBack();
+        }, 200);
 
         setDescricao('');
         setValor('');
